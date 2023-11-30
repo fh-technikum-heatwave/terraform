@@ -1,6 +1,11 @@
-# Configure AWS as the cloud provider and set region where resources should be created
-provider "aws" {
-  region = "us-east-1"
+terraform {
+  cloud {
+    organization = "if22b008"
+
+    workspaces {
+      name = "terraform-fh"
+    }
+  }
 }
 
 # Create a virtual private cloud with the cidr block 10.0.0.0/16
