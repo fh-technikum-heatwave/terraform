@@ -2,7 +2,7 @@ terraform {
   backend "remote" {
     organization = "if22b008"
     workspaces {
-      name = "Default Project"
+      name = "terraform-fh"
     }
   }
 }
