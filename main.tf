@@ -1,11 +1,16 @@
 terraform {
-  cloud {
+  backend "remote" {
     organization = "if22b008"
-
     workspaces {
-      name = "terraform-fh"
+      name = "Default Project"
     }
   }
+}
+
+
+# Configure AWS as the cloud provider and set region where resources should be created
+provider "aws" {
+  region = "us-east-1"
 }
 
 # Create a virtual private cloud with the cidr block 10.0.0.0/16
