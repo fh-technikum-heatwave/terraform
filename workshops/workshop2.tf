@@ -40,21 +40,21 @@ resource "aws_route_table_association" "a" {
 resource "aws_security_group" "sg" {
   name        = "allow_web"
   description = "Allow web inbound traffic"
-  vpc_id      = aws_vpc.vpc.id 
+  vpc_id      = aws_vpc.vpc.id #associates the security group with the vpc
 
   # Allow inbound traffic on port 80 from all IPs
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]#allows traffic from all IP
   }
 
   # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = "-1" #allows all outboud traffic, regardless of the protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
 }

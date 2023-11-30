@@ -47,14 +47,14 @@ resource "aws_security_group" "sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]#allows trafic from all IP
   }
 
   # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = "-1" #allows all outboud traffic, regardless of the protocol
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -64,6 +64,8 @@ resource "aws_eip" "eip" {
   vpc = true
 }
 
+
+#allocate a second elastic ip for the second instance
 resource "aws_eip" "eip2" { 
   vpc = true
 }
@@ -77,6 +79,8 @@ resource "aws_network_interface" "private_ip" {
 }
 
 
+# Create a secon network interface with a private IP address and associate it with the subnet and security group
+# Each newtwork_interface can only be used for one intance, multiple instances cannot use the same network_interface
 resource "aws_network_interface" "private_ip_2" {
   subnet_id       = aws_subnet.subnet.id
   private_ips     = ["10.0.1.51"]
@@ -89,6 +93,7 @@ resource "aws_eip_association" "eip_assoc" {
   network_interface_id = aws_network_interface.private_ip.id
 }
 
+# Associate the 2nd allocated Elastic IP with the created network interface
 resource "aws_eip_association" "eip_assoc2" {
   allocation_id        = aws_eip.eip2.id
   network_interface_id = aws_network_interface.private_ip_2.id
@@ -122,7 +127,7 @@ resource "aws_instance" "app" {
   }
 }
 
-
+# Create a 2nd EC2 instance
 resource "aws_instance" "app2" {
   ami           = "ami-0fc5d935ebf8bc3bc" # Use the Ubuntu machine image
   instance_type = "t2.micro" # type of machine
@@ -149,14 +154,13 @@ resource "aws_instance" "app2" {
   }
 }
 
-
-
-
-resource "aws_elb" "bar" {
+#creating a load-balancer with the name "load-balancer"
+resource "aws_elb" "load-balancer" {
   name               = "load-balancer"
-  subnets            = [aws_subnet.subnet.id]
-  security_groups    = [aws_security_group.sg.id]
+  subnets            = [aws_subnet.subnet.id] #associates with the subnet specified above
+  security_groups    = [aws_security_group.sg.id]# associate the security group specified above
 
+//listener which listens on port 80 for http traffic, forwards it to the instances on port 80
   listener {
     instance_port     = 80
     instance_protocol = "http"
@@ -165,19 +169,16 @@ resource "aws_elb" "bar" {
   }
 
 
-
-  instances                     = [aws_instance.app.id, aws_instance.app2.id]
-  cross_zone_load_balancing     = true
+  instances                     = [aws_instance.app.id, aws_instance.app2.id] #distributes the incoming traffic on one this 2 specified instancs
+  cross_zone_load_balancing     = true # 
   idle_timeout                  = 400
   connection_draining           = true
   connection_draining_timeout   = 400
 
   tags = {
-    Name = "aws_elb"
+    Name = "aws_elb" #adds a tag to the load-balancer
   }
 }
-
-
 
 
 # Outputs the public ip
@@ -185,6 +186,7 @@ output "public_ip" {
   value = aws_instance.app.public_ip
 }
 
+# outputs the dns of the load-balancer
 output "lb-dns" {
-  value = aws_elb.bar.dns_name
+  value = aws_elb.load-balancer.dns_name
 }
