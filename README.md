@@ -10,6 +10,7 @@ This platform serves as a centralized hub for managing and storing Terraform con
 
  - All workshop files are located in the workshop folder
  - Workflow files are located in the .github folder
+ - The workflow files must be executed manually in the Actions section of Github
 
 
 We have connected our workflow files with Terraform Cloud.
